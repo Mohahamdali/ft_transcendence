@@ -1,0 +1,80 @@
+name: ft-transcendence
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-transcendence}
+      POSTGRES_USER: ${POSTGRES_USER:-transcendence}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  backend:
+    build: ./backend
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?Set DJANGO_SECRET_KEY in .env}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-false}
+      DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1,backend
+      DJANGO_CSRF_TRUSTED_ORIGINS: https://localhost:8443
+      POSTGRES_DB: ${POSTGRES_DB:-transcendence}
+      POSTGRES_USER: ${POSTGRES_USER:-transcendence}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: "5432"
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health/', timeout=3)
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 8
+
+  frontend:
+    build: ./frontend
+    environment:
+      INTERNAL_API_URL: http://backend:8000
+      NODE_ENV: production
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  nginx:
+    build: ./infra/nginx
+    ports:
+      - "127.0.0.1:8080:80"
+      - "127.0.0.1:8443:443"
+    volumes:
+      - dev_tls_certs:/etc/nginx/certs
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
+  dev_tls_certs:
