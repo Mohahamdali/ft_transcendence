@@ -8,7 +8,7 @@
 
 An educational social network web app. The team intends to add secure accounts, profiles, friendships, posts, comments, direct messages and notifications.
 
-The current v0.0.1 only proves that Next.js, Django REST, Django Channels, PostgreSQL, Redis and nginx can start together.
+The current v0.0.1 provides starter infrastructure for Next.js, Django REST, Django Channels, PostgreSQL, Redis and nginx. Full Docker startup still needs to be verified.
 
 ## Instructions
 
@@ -102,20 +102,22 @@ Future functionality: account registration/login, profiles, posts, comments, lik
 
 The proposal (`docs/modules.md`) totals **14 planned points**, **0 validated points so far**. The evaluation team decides which completed modules qualify. A working `/api/health/` does not satisfy the secured public API module; a ping endpoint does not satisfy the WebSocket real-time module.
 
+The team-provided v21.2 subject permits a social network. Secure email/password signup and login, simultaneous users, input validation, and the other mandatory requirements are required independently of module points. See [the mandatory baseline review](docs/modules.md#mandatory-baseline) for the current gaps.
+
 ## Individual Contributions
 
 Record each person's actual commit references, files, feature ownership, difficulties and resolved issues here before evaluation. **TBD — no contribution attribution has been fabricated.**
 
 ## Resources
 
-- Official ft_transcendence subject v21.2 (team reference; not included in this repository)
+- Official ft_transcendence subject v21.2 (reviewed from the team-provided `ft_tran_sub.pdf`; PDF not included in this repository)
 - Next.js documentation: https://nextjs.org/docs
 - Django documentation: https://docs.djangoproject.com/
 - Django REST Framework: https://www.django-rest-framework.org/
 - Channels documentation: https://channels.readthedocs.io/
 - Docker Compose documentation: https://docs.docker.com/compose/
 
-AI assistance: ChatGPT was used to draft an initial scaffold, review the subject requirements and propose architecture. Every generated file must be reviewed, tested and understood by the team before submission.
+AI assistance: ChatGPT was used to draft the initial scaffold, review the v21.2 subject and propose architecture. It also assisted with a scoped readability refactor of Django settings, health checks, WebSocket routing, Next.js pages, and setup documentation, plus temporary build and smoke checks. Every generated file must be reviewed, tested and understood by the team before submission.
 
 ## Known limitations and security warning
 

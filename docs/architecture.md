@@ -36,3 +36,5 @@ A system health check, a WebSocket ping demo, a server-rendered page and develop
 Self-signed localhost certificates are generated automatically by nginx for development.
 Browsers will show a trust warning; do not use this certificate for deployment.
 For production replace it with trusted certificates and update hostname, ports and environment settings.
+
+The v21.2 subject (printed p. 9) requires HTTPS for external backend connections and permits unencrypted connections inside the backend/container infrastructure. Internal nginx/Next.js requests to Django, database connections and container health checks use that exception.
