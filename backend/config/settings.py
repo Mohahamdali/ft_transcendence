@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'channels',
     'apps.core',
+    'apps.users.apps.UsersConfig'
 ]
 
 MIDDLEWARE = [
