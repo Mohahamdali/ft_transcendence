@@ -12,23 +12,47 @@ The current v0.0.1 provides starter infrastructure for Next.js, Django REST, Dja
 
 ## Instructions
 
-Prerequisites: Docker Engine with Compose V2 (or equivalent compatible runtime). Node and Python are installed **inside** the containers.
+Prerequisites: Docker Engine with Compose V2 (or equivalent compatible runtime), GNU Make and a Unix-like shell. Node and Python are installed **inside** the containers. The optional `make health` command also needs `curl`.
 
 ```bash
-cp -n .env.example .env # Preserve an existing .env.
-# Edit .env and replace POSTGRES_PASSWORD and DJANGO_SECRET_KEY with random secrets.
-# Example random key: python3 -c 'import secrets; print(secrets.token_urlsafe(48))'
-docker compose up --build -d
-# Check statuses:
-docker compose ps
+make       # Create .env if missing, build the images and start all services.
+make ps    # Check service statuses.
+make help  # List all available commands.
 ```
+
+Run these commands from the repository root. `make init` creates `.env` with fresh random secrets and permissions restricted to your user. It preserves an existing `.env` unchanged; if that file was copied from `.env.example`, replace its example secrets before the first startup.
 
 Open `https://localhost:8443` in a browser and accept the **development-only self-signed certificate** warning. The same endpoint over HTTP at `http://localhost:8080` redirects to HTTPS.
 
+The home page lets you create an account with a username and password. It displays confirmation or a validation error in French. Registration creates the account; sign-in is not implemented yet.
+
 ```bash
-curl -k https://localhost:8443/api/health/
+make health
 # Expected: {"status":"ok","database":"ok","redis":"ok","version":"0.0.1"}
 ```
+
+Common commands:
+
+| Command | What it does |
+|---|---|
+| `make` / `make up` | Build and start the project; also use this after changing code |
+| `make down` / `make clean` | Stop and remove containers, keeping stored data |
+| `make stop` | Stop containers without removing them |
+| `make restart SERVICE=backend` | Restart an existing service without rebuilding its image |
+| `make re` | Stop, rebuild and start the project, keeping stored data |
+| `make build SERVICE=backend` | Build one service's image without starting it; omit `SERVICE` to build all |
+| `make logs` | Follow logs for all services; use `SERVICE=backend` to filter |
+| `make check` | Validate Compose, run Django checks and check TypeScript types |
+| `make test` | Run Django tests; optionally select tests with `ARGS=apps.users` |
+| `make makemigrations ARGS=users` | Generate migration files in the local `backend/` directory |
+| `make migrate` | Apply migrations to the database |
+| `make superuser` | Create an administrator account |
+| `make manage ARGS="showmigrations"` | Run another Django management command |
+| `make shell` | Open a shell in the backend; use `SERVICE=frontend` for the frontend |
+| `make dbshell` | Open the PostgreSQL console |
+| `make fclean` | **Permanently delete all project volumes**, including database data and development certificates |
+
+Start the project before running checks, tests, database commands or shells. Django management commands use a temporary container with the local backend source mounted, so generated migrations remain on your machine and belong to your user. The backend also applies migrations automatically at startup. Run `make up` after changing code or generating migrations: the running services use code copied into their images, and `make restart` does not update it.
 
 WebSocket test in the browser developer console on the page:
 
@@ -41,16 +65,14 @@ ws.onmessage = (event) => console.log(event.data); // {"type":"pong"}
 Checks after starting the services:
 
 ```bash
-docker compose config --quiet
-docker compose exec backend python manage.py check
-docker compose exec frontend npm run lint # TypeScript check; no ESLint is configured.
+make check # Compose validation, Django checks and TypeScript check; no ESLint is configured.
 ```
 
-There is no automated test suite yet. The health and WebSocket checks above are manual smoke tests.
+`make test ARGS=apps.users` runs the registration tests, including input validation, password hashing, duplicate usernames and CSRF protection. The health and WebSocket checks above are manual smoke tests.
 
-Stop without deleting data: `docker compose down`.
+Stop without deleting data: `make down`.
 
-Reset stored data **permanently**: `docker compose down -v` (deletes the volumes; only when intentionally resetting your development environment).
+Reset stored data **permanently**: `make fclean` (deletes the volumes; only when intentionally resetting your development environment).
 
 ## Technical Stack
 
@@ -90,13 +112,14 @@ See `docs/database-schema.md`. The listed social-domain entities are **planned**
 ## Features List
 
 Currently implemented:
-- Next.js welcome and infrastructure status page (starter)
+- Next.js registration form with loading, success and error messages in French
+- Django username/password registration at `/api/users/register/`, with a CSRF token endpoint at `/api/users/csrf/`
 - Django `/api/health/` checking PostgreSQL and Redis (starter)
 - Channels `/ws/ping/` WebSocket ping demo (starter)
 - Local TLS nginx routing + container build (starter)
 - Development-only Privacy Policy / Terms pages
 
-Future functionality: account registration/login, profiles, posts, comments, likes, friendship, chat, notifications, public API, search.
+Future functionality: email-based registration, login, profiles, posts, comments, likes, friendship, chat, notifications, public API, search.
 
 ## Modules
 
@@ -121,4 +144,4 @@ AI assistance: ChatGPT was used to draft the initial scaffold, review the v21.2 
 
 ## Known limitations and security warning
 
-This is a **local development prototype**, not production hardened: it has a self-signed TLS certificate, no authentication/business endpoints, no access-control tests and no complete GDPR/retention policy. Do not deploy it publicly or store real personal data. The two legal pages must be updated with the actual data practices and user rights before real users are enabled.
+This is a **local development prototype**, not production hardened: it has a self-signed TLS certificate, registration without sign-in, no social business endpoints and no complete GDPR/retention policy. Do not deploy it publicly or store real personal data. The two legal pages must be updated with the actual data practices and user rights before real users are enabled.

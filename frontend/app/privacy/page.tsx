@@ -1,11 +1,11 @@
 export default function PrivacyPage() {
   return (
-    <article className="max-w-2xl space-y-4">
+    <article lang="en" className="max-w-2xl space-y-4">
       <h1 className="text-3xl font-bold">Privacy Policy — Development Prototype</h1>
       <p>
-        This is an educational prototype. The current version does not allow
-        account creation, social posting or private messaging and should not be
-        used to submit real personal data.
+        This is an educational prototype. Account registration stores a username
+        and a hashed password. Social posting and private messaging are not
+        available. Use test credentials, not real personal data.
       </p>
       <p>
         The health-check endpoint checks infrastructure connectivity; the team
