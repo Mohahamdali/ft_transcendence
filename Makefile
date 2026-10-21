@@ -6,7 +6,7 @@ SERVICE ?=
 ARGS ?=
 
 # Mount the source so generated migrations stay on the host, with its ownership.
-DJANGO = $(COMPOSE) run --rm --no-deps --user "$$(id -u):$$(id -g)" --volume "$(CURDIR)/backend:/app" backend python manage.py
+DJANGO = $(COMPOSE) exec -T backend python manage.py
 
 .PHONY: all help init up build down clean stop restart re logs ps health check test \
         makemigrations migrate superuser manage shell dbshell fclean docker-check

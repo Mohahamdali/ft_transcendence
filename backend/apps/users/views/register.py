@@ -8,6 +8,17 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from rest_framework.decorators import (
+    api_view,
+    permission_classes,
+    authentication_classes,
+)
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from ..validators import (
+    validate_username,
+    validate_user_password,
+)
 #mat9arbch lhadchi a abkaram!!
 #register(request):
 #1. Read username and password from HTTP request#
@@ -26,33 +37,10 @@ from django.db import IntegrityError
        #- 409 if username already exists
 #regex
 
-def validate_username(username):
-    username_validator = UnicodeUsernameValidator()
-    if not isinstance(username, str):
-        raise ValueError("Username must be a string")
-    
-    if not username.strip():
-        raise ValueError("Username cannot be empty")
 
-    if len(username) > 150:
-        raise ValueError("Username is too long")
-
-    try:
-        username_validator(username)
-    except ValidationError:
-        raise ValueError("Username contains invalid characters")
-
-
-def validate_user_password(password):
-    if not isinstance(password, str):
-        raise ValueError("Password must be a string")
-
-    if not password:
-        raise ValueError("Password cannot be empty")
-
-    validate_password(password)
-
-
+@api_view(["POST"])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def register(request):
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
