@@ -22,7 +22,7 @@ from django.views.decorators.http import require_POST
 def login_view(request) :
     try :
         data = json.loads(request.body)
-    except (json.JSONDecodeError,json.UnicodeDecodeError) :
+    except (json.JSONDecodeError,UnicodeDecodeError) :
         return JsonResponse(
             {"Error" :"Invalid json"},
             status = 400

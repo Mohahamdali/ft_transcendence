@@ -6,8 +6,8 @@ from .views.register import register
 from .views.login import login_view
 from .views.logout import logout_view
 from .views.me import current_user
-
 from.views.csrf import csrf_token 
+
 urlpatterns = [
     path("register/", register, name="register"),
     path("login/", login_view, name="login") ,
