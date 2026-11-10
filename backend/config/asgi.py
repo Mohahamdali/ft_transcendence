@@ -10,7 +10,10 @@ from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 
-from apps.core.routing import websocket_urlpatterns
+from apps.chat.routing import websocket_urlpatterns as chat_websocket_urlpatterns
+from apps.core.routing import websocket_urlpatterns as core_websocket_urlpatterns
+
+websocket_urlpatterns = core_websocket_urlpatterns + chat_websocket_urlpatterns
 
 application = ProtocolTypeRouter(
     {
